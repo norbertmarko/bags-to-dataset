@@ -1,0 +1,11 @@
+# Main config file
+
+path:
+  output_root_dir: "/home/norbert/repos/bags-to-dataset"
+  bag_dir: "/home/norbert/rosbags/lane-bags"
+
+ros:
+  topic:
+    img_topic_name: "/pylon_camera_node/image_raw"
+data:
+  interval: 2.0
