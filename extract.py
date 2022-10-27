@@ -7,6 +7,13 @@ from cv_bridge import CvBridge
 import cv2
 from tqdm import tqdm
 
+# output folder -> vid1, vid2 ... -> (in_vid) frame_pack_1, frame_pack_2 (60 frames)
+# -> (in frame packs) img: 00001.jpg, ann: 00001.lines.txt
+# (in txt) 4 rows: x y x y...
+# generated: train.txt, val.txt (paths listed inside root folder) + gt masks 
+# 3rd degree splines
+
+# vid1, vid2 -> bag_idx
 
 class ImageDataExtractor:
 	"""
@@ -60,12 +67,13 @@ class ImageDataExtractor:
 		bag_name: str,
 		output_root_dir: str,
 		bag_idx: int = 0,
-		interval: float = 0.2,
+		interval: float = 1.0,
 		img_topic_name: str = "/pylon_camera_node/image_raw",
+		pack_length: int = 60
 	) -> None:
 		"""Extracts data from a single rosbag."""
 
-		output_dir = Path(output_root_dir) / f"{bag_idx}"
+		output_dir = Path(output_root_dir) / f"vid{bag_idx+1}"
 		if not output_dir.exists():
 			output_dir.mkdir(parents=True)		
 
@@ -76,20 +84,27 @@ class ImageDataExtractor:
 			f"Extracting images from bag {bag_idx}", length=len(imgs)
 		)
 
+		pack_num = len(imgs) // pack_length
+		pack_num_iter = iter(range(pack_num))
+
 		img_count = 0
 		current_t = 0.0
+		pack_cnt = next(pack_num_iter)
 		for (topic, msg, t) in imgs:
+			if img_count > pack_length:
+				pack_cnt = next(pack_num_iter)
 			timestamp = t.to_nsec()
 
 			if timestamp < current_t:
 				pass
 			else:
-				file_name = f"{img_count}".zfill(4)
-				output_path_img = output_dir / f"{file_name}.png"
+				file_name = f"{img_count}".zfill(5)
+				pack_dir = output_dir / f"frame_pack_{pack_cnt+1}"
+				output_path_img = pack_dir / f"{file_name}.jpg"
 				self.save_img_from_rosbag(msg, output_path_img)
 				current_t += interval
 				img_count += 1
-
+	
 			pbar.update()
 		pbar.close()
 
