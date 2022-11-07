@@ -119,7 +119,7 @@ class ImageDataExtractor:
 				with open(str(train_txt.resolve()), 'a') as f:
 					f.write(f"{output_path_img_rel} \n")
 				with open(str(file_list.resolve()), 'a') as f:
-					f.write(f"- {{url: '/opt/scalabel/local-data/items/{output_path_img_rel}'}} \n")
+					f.write(f"- {{url: 'http://localhost:8686/items/{output_path_img_rel}'}} \n")
 				current_t += interval
 				img_count += 1
 
