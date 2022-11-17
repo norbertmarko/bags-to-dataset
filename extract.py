@@ -82,9 +82,9 @@ class ImageDataExtractor:
 		if not train_txt.exists():
 			train_txt.touch()
 		
-		file_list = output_dir / f"file_list_{bag_idx+1}.yml"
-		if not file_list.exists():
-			file_list.touch()
+		# file_list = output_dir / f"file_list_{bag_idx+1}.yml"
+		# if not file_list.exists():
+		# 	file_list.touch()
 
 		self.bag = self.open_rosbag(bag_dir, bag_name)
 		imgs = self.unpack_ros_topic_data(img_topic_name)
@@ -111,7 +111,10 @@ class ImageDataExtractor:
 				file_name = f"{img_count}".zfill(5)
 				pack_dir = output_dir / f"frame_pack_{pack_cnt+1}"
 				if not pack_dir.exists():
-					pack_dir.mkdir(parents=True)	
+					pack_dir.mkdir(parents=True)
+				file_list = pack_dir / f"file_list_{pack_cnt+1}.yml"
+				if not file_list.exists():
+					file_list.touch()
 				output_path_img = pack_dir / f"{file_name}.jpg"
 				self.save_img_from_rosbag(msg, output_path_img)
 				output_path_img_rel = str(output_path_img.resolve()).split("/")[-3:]
